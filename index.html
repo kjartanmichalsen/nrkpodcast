@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- Based on https://gist.github.com/ryanlowdermilk/1591612 -->
     <title>Home</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
@@ -10,7 +11,7 @@
     <script>
         $('#episodes-page').live('pageinit', function () {
             "use strict";
-            var feedUrl = "http://feeds.feedburner.com/WindowsPhoneDevPodcast",
+            var feedUrl = "http://podkast.nrk.no/program/filmpolitiet.rss",
             NumberOfEntries = "100",
             googleAPI = "http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&output=json&num="
                         + NumberOfEntries + '&q=' + encodeURIComponent(feedUrl);
@@ -126,7 +127,7 @@
     <section data-role="page" id="home-page" data-theme="a">
         <header data-role="header">
             <h1>
-                Windows Phone Dev Podcast</h1>
+                NRK Podkast</h1>
         </header>
         <div data-role="content">
             <a href="#episodes-page" data-role="button">Episodes</a>
@@ -134,8 +135,7 @@
         </div>
         <footer data-role="footer">
             <h1>
-                "The exclusive podcast<br />
-                for Windows Phone developers and enthusiasts"</h1>
+                "Podkast fra NRK"</h1>
         </footer>
     </section>
     <!-- about-page -->
@@ -146,19 +146,7 @@
         </header>
         <div data-role="content">
             <p>
-                Windows Phone Dev Podcast is the first online show, exclusively for Windows Phone
-                developers and enthusiasts.</p>
-            <p>
-                Each week Ryan and Travis Lowdermilk traverse the exciting world of Windows Phone;
-                covering the latest news and exploring what it means for the developer community
-                and everyday users.</p>
-            <p>
-                Plus, exciting guests are always dropping by. Industry leading developers and bloggers:
-                Paul Thurrot, Rafael Rivera, Long Zheng, PopCap Games, Mary Jo Foley, Alex Willhelm,
-                and many many more!</p>
-            <p>
-                If you’re a fan of Windows Phone, or a long time developer, there’s plenty of exciting
-                content to be found on Windows Phone Dev Podcast.</p>
+               Podcaster fra P3</p>
         </div>
         <div>
             <a href="#home-page" data-direction="reverse" data-role="button">Back</a>
