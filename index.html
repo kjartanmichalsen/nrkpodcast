@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Home</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.js"></script>
+    <script src="json2.js"></script>
+    <script>
+        $('#episodes-page').live('pageinit', function () {
+            "use strict";
+            var feedUrl = "http://feeds.feedburner.com/WindowsPhoneDevPodcast",
+            NumberOfEntries = "100",
+            googleAPI = "http://ajax.googleapis.com/ajax/services/feed/load?v=1.0&output=json&num="
+                        + NumberOfEntries + '&q=' + encodeURIComponent(feedUrl);
+
+            $.ajax({
+                url: googleAPI,
+                dataType: 'jsonp',
+                success: function (data) {
+                    if (data.responseData === null) {
+                        $("#error-description").html(data.responseDetails);
+                        $.mobile.changePage($("#error-page"), { role: "dialog" });
+                    } else {
+                        $.each(data.responseData.feed.entries, function (i, entry) {
+                            var html = '<li><a href="#episode-details-page">' + entry.title +
+                               '<\/a><\/li>',
+                        episode = $(html);
+                            $("#list").append(episode);
+                            $("#list").find("a:last").data("episodeData", JSON.stringify(entry));
+                        });
+                        $("#list").listview("refresh");
+                        $("#list").find("a").click(function () {
+                            var $this = $(this);
+                            $("#episode-details-page").data("episodeData", $this.data("episodeData"));
+                        });
+                    }
+                }
+            });
+        });
+
+        $('#episode-details-page').live('pageshow', function () {
+            "use strict";
+            var episode = JSON.parse($("#episode-details-page").data("episodeData"));
+            $("#title").html(episode.title);
+            $("#description").html(episode.contentSnippet);
+            $("#player").attr("onlick", "playAudio('" + episode.mediaGroups[0].contents[0].url + "');");
+        });
+
+        // Audio player
+        //
+        var my_media = null;
+        var mediaTimer = null;
+
+        // Play audio
+        //
+        function playAudio(src) {
+            // Create Media object from src
+            my_media = new Media(src, onSuccess, onError);
+
+            // Play audio
+            my_media.play();
+
+            // Update my_media position every second
+            if (mediaTimer == null) {
+                mediaTimer = setInterval(function () {
+                    // get my_media position
+                    my_media.getCurrentPosition(
+                    // success callback
+                        function (position) {
+                            if (position > -1) {
+                                setAudioPosition((position) + " sec");
+                            }
+                        },
+                    // error callback
+                        function (e) {
+                            console.log("Error getting pos=" + e);
+                            setAudioPosition("Error: " + e);
+                        }
+                    );
+                }, 1000);
+            }
+        }
+
+        // Pause audio
+        // 
+        function pauseAudio() {
+            if (my_media) {
+                my_media.pause();
+            }
+        }
+
+        // Stop audio
+        // 
+        function stopAudio() {
+            if (my_media) {
+                my_media.stop();
+            }
+            clearInterval(mediaTimer);
+            mediaTimer = null;
+        }
+
+        // onSuccess Callback
+        //
+        function onSuccess() {
+            console.log("playAudio():Audio Success");
+        }
+
+        // onError Callback 
+        //
+        function onError(error) {
+            alert('code: ' + error.code + '\n' +
+                  'message: ' + error.message + '\n');
+        }
+
+        // Set audio position
+        // 
+        function setAudioPosition(position) {
+            document.getElementById('audio_position').innerHTML = position;
+        }
+    </script>
+</head>
+<body>
+    <!-- home-page -->
+    <section data-role="page" id="home-page" data-theme="a">
+        <header data-role="header">
+            <h1>
+                Windows Phone Dev Podcast</h1>
+        </header>
+        <div data-role="content">
+            <a href="#episodes-page" data-role="button">Episodes</a>
+            <a href="#about-page" data-role="button">About</a>
+        </div>
+        <footer data-role="footer">
+            <h1>
+                "The exclusive podcast<br />
+                for Windows Phone developers and enthusiasts"</h1>
+        </footer>
+    </section>
+    <!-- about-page -->
+    <section data-role="page" id="about-page" data-theme="a">
+        <header data-role="header">
+            <h1>
+                About</h1>
+        </header>
+        <div data-role="content">
+            <p>
+                Windows Phone Dev Podcast is the first online show, exclusively for Windows Phone
+                developers and enthusiasts.</p>
+            <p>
+                Each week Ryan and Travis Lowdermilk traverse the exciting world of Windows Phone;
+                covering the latest news and exploring what it means for the developer community
+                and everyday users.</p>
+            <p>
+                Plus, exciting guests are always dropping by. Industry leading developers and bloggers:
+                Paul Thurrot, Rafael Rivera, Long Zheng, PopCap Games, Mary Jo Foley, Alex Willhelm,
+                and many many more!</p>
+            <p>
+                If you’re a fan of Windows Phone, or a long time developer, there’s plenty of exciting
+                content to be found on Windows Phone Dev Podcast.</p>
+        </div>
+        <div>
+            <a href="#home-page" data-direction="reverse" data-role="button">Back</a>
+        </div>
+    </section>
+    <!-- episodes-page -->
+    <section data-role="page" id="episodes-page" data-theme="a">
+        <div data-role="header">
+            <h1>
+                Episodes</h1>
+        </div>
+        <div data-role="content">
+            <div id="msg">
+            </div>
+            <div id="result">
+                <ul id="list" data-role="listview">
+                </ul>
+            </div>
+        </div>
+        <p>
+            <a href="#home-page" data-direction="reverse" data-role="button">Back</a></p>
+    </section>
+    <!-- episode-details-page -->
+    <section data-role="page" id="episode-details-page" data-theme="a">
+        <div data-role="header">
+            <h1 id="title">
+            </h1>
+        </div>
+        <div data-role="content">
+            <div id="description">
+            </div>
+            <div>
+                <a href="#" data-role="button" id="player">Play Audio</a>
+                <a href="#" data-role="button" onclick="pauseAudio();">Pause Playing Audio</a>
+                <a href="#" data-role="button" onclick="stopAudio();">Stop Playing Audio</a>
+                <p id="audio_position">
+                </p>
+            </div>
+        </div>
+        <p>
+            <a href="#episodes-page" data-direction="reverse" data-role="button">Back</a></p>
+    </section>
+    <!-- error-page -->
+    <section data-role="page" id="error-page" data-theme="a">
+        <header data-role="header">
+            <h1>
+                Error</h1>
+        </header>
+        <div data-role="content" id="error-description">
+        </div>
+    </section>
+</body>
+</html>
